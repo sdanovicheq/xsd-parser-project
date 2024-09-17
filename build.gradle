@@ -1,0 +1,84 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Include JAXB API and XJC tool for Java 11+
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.1'
+    implementation 'org.glassfish.jaxb:jaxb-xjc:2.3.1'  // XJC tool for generating Java classes from XSD
+}
+
+application {
+    mainClass = 'com.example.Main'
+}
+
+// Define a task to generate Java classes from XSD files using the xjc tool
+task generateJaxb(type: Exec) {
+    def xsdFile = file('src/main/resources/schemas/xlink.xsd')  // Specific XSD file
+    def bindingFile = file('src/main/resources/bindings.xjb')   // Binding file to resolve conflicts
+    def outputDir = file('src/generated/java')                 // Output directory for generated Java stubs
+
+    inputs.file(xsdFile)
+    outputs.dir(outputDir)
+
+    doFirst {
+        // Create output directory if it doesn't exist
+        if (!outputDir.exists()) {
+            outputDir.mkdirs()
+        }
+    }
+
+    if (!xsdFile.exists()) {
+        throw new GradleException("XSD file not found: $xsdFile")
+    }
+
+    // Run xjc for the specific XSD file, with the binding file to resolve property conflict
+    commandLine 'java',
+            '-cp', configurations.compileClasspath.asPath,
+            'com.sun.tools.xjc.Driver',
+            '-nv',
+            '-extension',
+            '-b', bindingFile.absolutePath,   // Add binding file
+            '-d', outputDir,
+            '-p', 'com.example.generated',
+            "\"${xsdFile.absolutePath}\""
+
+    doLast {
+        println "xlink.xsd successfully parsed into Java stubs with property conflict resolved."
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/generated/java'
+        }
+    }
+}
+
+compileJava.dependsOn(generateJaxb)
+
+
+task unmarshalXml(type: JavaExec) {
+    dependsOn compileJava  // Ensure the Java code is compiled before unmarshalling
+
+    classpath = sourceSets.main.runtimeClasspath  // Use the runtime classpath to include all dependencies
+
+    main = 'com.springeq.unmarshal.UnmarshalXml'  // Replace with the fully qualified name of your main class
+
+    args = []  // Pass any command-line arguments if necessary
+
+    doFirst {
+        println "Unmarshalling the XML file into Java objects..."
+    }
+
+    doLast {
+        println "Unmarshalling complete."
+    }
+}

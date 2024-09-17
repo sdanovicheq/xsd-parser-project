@@ -1,0 +1,38 @@
+<jxb:bindings xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+              xmlns:xs="http://www.w3.org/2001/XMLSchema"
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              jxb:version="2.1">
+
+    <!-- Set the typesafeEnumMaxMembers to 600 globally -->
+    <jxb:globalBindings typesafeEnumMaxMembers="600" />
+
+    <!-- Apply bindings to the xlink schema located in the 'schemas' directory -->
+    <jxb:bindings schemaLocation="schemas/xlink.xsd" node="/xs:schema">
+
+        <!-- Customize the "title" attribute in the "simpleAttrs" attribute group -->
+        <jxb:bindings node="//xs:attributeGroup[@name='simpleAttrs']/xs:attribute[@ref='xlink:title']">
+            <jxb:property name="simpleTitle"/>
+        </jxb:bindings>
+
+        <!-- Customize the "title" element in the "locatorModel" group -->
+        <jxb:bindings node="//xs:group[@name='locatorModel']/xs:sequence/xs:element[@ref='xlink:title']">
+            <jxb:property name="locatorTitle"/>
+        </jxb:bindings>
+
+        <!-- Customize the "title" element in the "arcModel" group -->
+        <jxb:bindings node="//xs:group[@name='arcModel']/xs:sequence/xs:element[@ref='xlink:title']">
+            <jxb:property name="arcTitle"/>
+        </jxb:bindings>
+
+        <!-- Customize the "title" attribute in the "resourceAttrs" attribute group -->
+        <jxb:bindings node="//xs:attributeGroup[@name='resourceAttrs']/xs:attribute[@ref='xlink:title']">
+            <jxb:property name="resourceTitle"/>
+        </jxb:bindings>
+
+        <!-- Customize the "title" attribute in the "extendedAttrs" attribute group -->
+        <jxb:bindings node="//xs:attributeGroup[@name='extendedAttrs']/xs:attribute[@ref='xlink:title']">
+            <jxb:property name="extendedAttrsTitle"/>
+        </jxb:bindings>
+
+    </jxb:bindings>
+</jxb:bindings>
